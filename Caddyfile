@@ -1,0 +1,4 @@
+my.domain.com {
+    reverse_proxy headscale:8080
+    tls my@email.com
+}

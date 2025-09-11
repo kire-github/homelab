@@ -1,0 +1,51 @@
+version: "3.9"
+
+services:
+    headscale:
+        image: docker.io/headscale/headscale:stable
+        restart: unless-stopped
+        container_name: headscale
+        expose:
+            - "8080"
+            - "9090"
+        volumes:
+            - <HEADSCALE_PATH>/config:/etc/headscale
+            - <HEADSCALE_PATH>/lib:/var/lib/headscale
+            - <HEADSCALE_PATH>/run:/var/run/headscale
+        command: serve
+
+    caddy:
+        image: caddy:latest
+        restart: unless-stopped
+        container_name: caddy
+        depends_on:
+            - headscale
+        ports:
+            - "80:80"
+            - "443:443"
+            - "443:443/udp"
+        volumes:
+            - ./conf:/etc/caddy
+            - ./site:/srv
+            - caddy_data:/data
+            - caddy_config:/config
+
+
+    tailscale:
+        image: tailscale/tailscale:latest
+        restart: unless-stopped
+        container_name: tailscale
+        cap_add:
+            - NET_ADMIN
+        devices:
+            - /dev/net/tun:/dev/net/tun
+        environment:
+            - TS_AUTHKEY=<GET_FROM_HEADSCALE>
+            - TS_EXTRA_ARGS=--advertise-exit-node --login-server=headscale:8080
+            - TS_STATE_DIR=/var/lib/tailscale
+        depends_on:
+            - headscale
+
+volumes:
+  caddy_data:
+  caddy_config:
