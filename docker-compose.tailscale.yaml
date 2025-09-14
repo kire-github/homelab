@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+    tailscale:
+        image: tailscale/tailscale:stable
+        restart: unless-stopped
+        container_name: tailscale
+        network_mode: "host"
+        privileged: true
+        cap_add:
+            - NET_ADMIN
+            - NET_RAW
+            - SYS_MODULE
+        devices:
+            - /dev/net/tun:/dev/net/tun
+        environment:
+            - TS_AUTHKEY=e64a6bb5a5a5e10bb59295d9c42b76ce38a91102d5c3b708
+            - TS_EXTRA_ARGS=--login-server=https://kire.dedyn.io --advertise-exit-node --advertise-routes=0.0.0.0/0,::/0 --accept-dns=false
+            - TS_STATE_DIR=/var/lib/tailscale
+            - TS_HOSTNAME=server

@@ -35,18 +35,3 @@ services:
             - /home/server/server_config/caddy/data:/data
             - /home/server/server_config/caddy/config:/config
 
-
-    tailscale:
-        image: tailscale/tailscale:latest
-        restart: unless-stopped
-        container_name: tailscale
-        depends_on:
-            - headscale
-        cap_add:
-            - NET_ADMIN
-        devices:
-            - /dev/net/tun:/dev/net/tun
-        environment:
-            - TS_AUTHKEY=<GET_FROM_HEADSCALE>
-            - TS_EXTRA_ARGS=--advertise-exit-node --login-server=headscale:8080
-            - TS_STATE_DIR=/var/lib/tailscale
